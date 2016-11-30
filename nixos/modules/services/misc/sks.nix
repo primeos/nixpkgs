@@ -13,7 +13,11 @@ let
       basedir: ${cfg.dataDir}
 
       hostname: ${cfg.hostname}
+
+      hkp_address: ${cfg.hkpAddr}
       hkp_port: ${toString cfg.hkpPort}
+
+      recon_address: ${cfg.reconAddr}
       recon_port: ${toString cfg.reconPort}
 
       ${sksAdditionalCfg}
@@ -23,13 +27,16 @@ let
     # debuglevel 3 is default (max. debuglevel is 10)
     debuglevel: 3
 
+    initial_stat:
+    stat_hour: 17
+
     #server_contact: 0xDECAFBADDEADBEEF
     #from_addr: pgp-public-keys@example.tld
     #sendmail_cmd:			/usr/sbin/sendmail -t -oi
 
-    initial_stat:
+    # Standalone server for now
+    disable_mailsync:
     membership_reload_interval:	1
-    stat_hour:			17
 
     # set DB file pagesize as recommended by db_tuner
     # pagesize is (n * 512) bytes
@@ -62,6 +69,21 @@ let
     # PTree/ptree 4096
     ptree_pagesize: 8
   '';
+
+  dbCfg = pkgs.writeText "DB_CONFIG"
+    ''
+      set_mp_mmapsize  268435456
+      set_cachesize    0 134217728 1
+      set_flags        DB_LOG_AUTOREMOVE
+      set_lg_regionmax 1048576
+      set_lg_max       104857600
+      set_lg_bsize     2097152
+      set_lk_detect    DB_LOCK_DEFAULT
+      set_tmp_dir      /tmp
+      set_lock_timeout 1000
+      set_txn_timeout  1000
+      mutex_set_max    65536
+    '';
 in
 {
 ###### interface
@@ -85,10 +107,22 @@ in
         default = "localhost";
       };
 
+     hkpAddr = mkOption {
+        description = "Listening address";
+        type = types.str;
+        default = "127.0.0.1";
+      };
+
       hkpPort = mkOption {
         description = "HKP port to listen on";
         type = types.int;
         default = 11371;
+      };
+
+     reconAddr = mkOption {
+        description = "Listening address";
+        type = types.str;
+        default = "127.0.0.1";
       };
 
       reconPort = mkOption {
@@ -133,11 +167,6 @@ in
         gid = config.ids.gids.sks;
       }];
 
-      system.activationScripts.sks-build = stringAfter [ "users" "groups" ] ''
-        cd ${cfg.dataDir}
-        ${pkg}/bin/sks build -basedir ${cfg.dataDir}
-      '';
-
       systemd.services."sks-db" = {
         description = "SKS database server";
         after = [ "network.target" ];
@@ -149,7 +178,12 @@ in
           User = "sks";
         };
         preStart = ''
-          ln -fs ${sksCfg} ${cfg.dataDir}/sksconf
+          ln -fsn ${sksCfg} ${cfg.dataDir}/sksconf
+          ln -fsn ${dbCfg} ${cfg.dataDir}/DB_CONFIG
+
+          if ! test -e ${cfg.dataDir}/KDB; then
+            ${pkg}/bin/sks build -basedir ${cfg.dataDir}
+          fi
         '';
       };
     })
