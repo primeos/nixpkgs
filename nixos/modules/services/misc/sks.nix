@@ -14,10 +14,10 @@ let
 
       hostname: ${cfg.hostname}
 
-      hkp_address: ${cfg.hkpAddr}
+      hkp_address: ${concatStringsSep " " cfg.hkpAddr}
       hkp_port: ${toString cfg.hkpPort}
 
-      recon_address: ${cfg.reconAddr}
+      recon_address: ${concatStringsSep " " cfg.reconAddr}
       recon_port: ${toString cfg.reconPort}
 
       ${sksAdditionalCfg}
@@ -27,12 +27,15 @@ let
     # debuglevel 3 is default (max. debuglevel is 10)
     debuglevel: 3
 
+    # Run database statistics calculation on boot and at 04:00h
+    # Can be manually triggered with the USR2 signal.
     initial_stat:
-    stat_hour: 17
+    stat_hour: 4
 
+    # TODO
     #server_contact: 0xDECAFBADDEADBEEF
     #from_addr: pgp-public-keys@example.tld
-    #sendmail_cmd:			/usr/sbin/sendmail -t -oi
+    #sendmail_cmd: /usr/sbin/sendmail -t -oi
 
     # Standalone server for now
     disable_mailsync:
@@ -89,61 +92,76 @@ in
 ###### interface
   options = {
     services.sks = {
-      enable = mkEnableOption "Synchronizing key server";
-      enableRecon = mkEnableOption "Synchronizing key server";
+
+      enable = mkEnableOption "Whether to enable sks (synchronizing key server
+      for OpenPGP) and start the database server";
+
+      enableRecon = mkEnableOption "Whether to enable the reconciliation server
+      of sks";
 
       dataDir = mkOption {
         description = ''
-          Data directory (-basedir) for sks, where KDB, PTree, membership and
-          sksconf are located
+          Data directory (-basedir) for sks, where the database and all
+          configuration files are located (e.g. KDB, PTree, membership and
+          sksconf).
         '';
         type = types.path;
         default = "/var/lib/sks";
       };
 
+      # TODO: default =
+      # "\${config.networking.hostName}.\${config.networking.domain}";?
       hostname = mkOption {
-        description = "The public facing FQDN used to access sks from a browser";
+        description = "The hostname (should be the public facing FQDN if
+        available) used for sks.";
         type = types.str;
         default = "localhost";
+        example = "keyserver.example.com";
       };
 
+     # TODO: "hkpAddr", "hkpListenAddress" or "hkp.listenAddress"?
      hkpAddr = mkOption {
-        description = "Listening address";
-        type = types.str;
-        default = "127.0.0.1";
+        description = "Domain names, IPv4 and/or IPv6 addresses to listen on
+        for HKP requests.";
+        type = types.listOf types.str;
+        default = [ "127.0.0.1" "::1" ];
       };
 
       hkpPort = mkOption {
-        description = "HKP port to listen on";
+        description = "HKP port to listen on.";
         type = types.int;
         default = 11371;
       };
 
      reconAddr = mkOption {
-        description = "Listening address";
-        type = types.str;
-        default = "127.0.0.1";
+        description = "Domain names, IPv4 and/or IPv6 addresses to listen on.";
+        type = types.listOf types.str;
+        default = [ "127.0.0.1" "::1" ];
       };
 
       reconPort = mkOption {
-        description = "Recon port to listen on";
+        description = "Recon port to listen on.";
         type = types.int;
         default = 11370;
       };
 
       additionalConfig = mkOption {
-        description = "Additional sks configuration";
+        description = "Provide additional sks configuration options which will
+        be appended to the main configuration (sksconf). See \"ADDITIONAL
+        OPTIONS\" in \"man sks\" for all available options.";
         type = lib.types.lines;
         default = sksAdditionalCfg;
       };
 
       sksconfFile = mkOption {
+        description = "Derivation for the main configuration file of sks. You
+        can use this option to replace the default configuration, however it's
+        recommended to use the options provided by this module instead and use
+        the \"additionalConfig\" option for options not implemented by this
+        module.";
         type = lib.types.lines;
         default = sksCfg;
         defaultText = "sks configuration file";
-        description = "
-          Derivation for the main configuration file of sks
-        ";
       };
     };
   };
