@@ -221,4 +221,8 @@ in
       };
     })
   ];
+
+  meta = {
+    maintainers = with maintainers; [ primeos jcumming ];
+  };
 }
