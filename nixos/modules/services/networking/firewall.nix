@@ -38,6 +38,11 @@ let
 
   cfg = config.networking.firewall;
 
+  kernelPackages = config.boot.kernelPackages;
+
+  kernelHasRPFilter = kernelPackages.kernel.features.netfilterRPFilter or false;
+  kernelCanDisableHelpers = kernelPackages.kernel.features.canDisableNetfilterConntrackHelpers or false;
+
   helpers =
     ''
       # Helper command to manipulate both the IPv4 and IPv6 tables.
@@ -240,11 +245,6 @@ let
     fi
   '';
 
-  kernelPackages = config.boot.kernelPackages;
-
-  kernelHasRPFilter = kernelPackages.kernel.features.netfilterRPFilter or false;
-  kernelCanDisableHelpers = kernelPackages.kernel.features.canDisableNetfilterConntrackHelpers or false;
-
 in
 
 {
@@ -302,26 +302,30 @@ in
       default = false;
       description =
         ''
-          If set, forbidden packets are rejected rather than dropped
+          If set, refused packets are rejected rather than dropped
           (ignored).  This means that an ICMP "port unreachable" error
-          message is sent back to the client.  Rejecting packets makes
+          message is sent back to the client (or a TCP RST packet in
+          case of an existing connection).  Rejecting packets makes
           port scanning somewhat easier.
         '';
     };
 
     networking.firewall.trustedInterfaces = mkOption {
       type = types.listOf types.str;
+      default = [ ];
+      example = [ "enp0s2" ];
       description =
         ''
           Traffic coming in from these interfaces will be accepted
-          unconditionally.
+          unconditionally.  Traffic from the loopback (lo) interface
+          will always be accepted.
         '';
     };
 
     networking.firewall.allowedTCPPorts = mkOption {
-      default = [];
-      example = [ 22 80 ];
       type = types.listOf types.int;
+      default = [ ];
+      example = [ 22 80 ];
       description =
         ''
           List of TCP ports on which incoming connections are
@@ -330,9 +334,9 @@ in
     };
 
     networking.firewall.allowedTCPPortRanges = mkOption {
-      default = [];
-      example = [ { from = 8999; to = 9003; } ];
       type = types.listOf (types.attrsOf types.int);
+      default = [ ];
+      example = [ { from = 8999; to = 9003; } ];
       description =
         ''
           A range of TCP ports on which incoming connections are
@@ -341,9 +345,9 @@ in
     };
 
     networking.firewall.allowedUDPPorts = mkOption {
-      default = [];
-      example = [ 53 ];
       type = types.listOf types.int;
+      default = [ ];
+      example = [ 53 ];
       description =
         ''
           List of open UDP ports.
@@ -351,9 +355,9 @@ in
     };
 
     networking.firewall.allowedUDPPortRanges = mkOption {
-      default = [];
-      example = [ { from = 60000; to = 61000; } ];
       type = types.listOf (types.attrsOf types.int);
+      default = [ ];
+      example = [ { from = 60000; to = 61000; } ];
       description =
         ''
           Range of open UDP ports.
@@ -361,8 +365,8 @@ in
     };
 
     networking.firewall.allowPing = mkOption {
-      default = true;
       type = types.bool;
+      default = true;
       description =
         ''
           Whether to respond to incoming ICMPv4 echo requests
@@ -373,36 +377,43 @@ in
     };
 
     networking.firewall.pingLimit = mkOption {
-      default = null;
       type = types.nullOr (types.separatedString " ");
+      default = null;
+      example = "--limit 1/minute --limit-burst 5";
       description =
         ''
           If pings are allowed, this allows setting rate limits
-          on them. If non-null, this option should be in the form
+          on them.  If non-null, this option should be in the form
           of flags like "--limit 1/minute --limit-burst 5"
         '';
     };
 
     networking.firewall.checkReversePath = mkOption {
-      default = kernelHasRPFilter;
       type = types.either types.bool (types.enum ["strict" "loose"]);
+      default = kernelHasRPFilter;
+      example = "loose";
       description =
         ''
           Performs a reverse path filter test on a packet.
-          If a reply to the packet would not be sent via the same interface
-          that the packet arrived on, it is refused.
+          If a reply to the packet would not be sent via the same
+          interface that the packet arrived on, it is refused.
 
           If using asymmetric routing or other complicated routing,
           set this option to loose mode or disable it and setup your
           own counter-measures.
+
+          This option can be either true (or "strict"), "loose" (only
+          drop the packet if the source address is not reachable via any
+          interface) or false.  Defaults to the value of
+          kernelHasRPFilter.
 
           (needs kernel 3.3+)
         '';
     };
 
     networking.firewall.logReversePathDrops = mkOption {
-      default = false;
       type = types.bool;
+      default = false;
       description =
         ''
           Logs dropped packets failing the reverse path filter test if
@@ -411,9 +422,9 @@ in
     };
 
     networking.firewall.connectionTrackingModules = mkOption {
+      type = types.listOf types.str;
       default = [ "ftp" ];
       example = [ "ftp" "irc" "sane" "sip" "tftp" "amanda" "h323" "netbios_sn" "pptp" "snmp" ];
-      type = types.listOf types.str;
       description =
         ''
           List of connection-tracking helpers that are auto-loaded.
@@ -424,14 +435,14 @@ in
           networking.firewall.autoLoadConntrackHelpers
 
           Loading of helpers is recommended to be done through the new
-          CT target. More info:
+          CT target.  More info:
           https://home.regit.org/netfilter-en/secure-use-of-helpers/
         '';
     };
 
     networking.firewall.autoLoadConntrackHelpers = mkOption {
-      default = true;
       type = types.bool;
+      default = true;
       description =
         ''
           Whether to auto-load connection-tracking helpers.
@@ -512,7 +523,7 @@ in
       path = [ pkgs.iptables ] ++ cfg.extraPackages;
 
       # FIXME: this module may also try to load kernel modules, but
-      # containers don't have CAP_SYS_MODULE. So the host system had
+      # containers don't have CAP_SYS_MODULE.  So the host system had
       # better have all necessary modules already loaded.
       unitConfig.ConditionCapability = "CAP_NET_ADMIN";
       unitConfig.DefaultDependencies = false;
