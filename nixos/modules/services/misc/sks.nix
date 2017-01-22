@@ -73,6 +73,7 @@ let
     ptree_pagesize: 8
   '';
 
+  # TODO: Check if still required
   dbCfg = pkgs.writeText "DB_CONFIG"
     ''
       set_mp_mmapsize  268435456
@@ -108,6 +109,17 @@ in
         type = types.path;
         default = "/var/lib/sks";
       };
+
+      dumpDir = mkOption {
+        description = ''
+          Keydump directory, where all keys for the initial import are located.
+          This option is required and one must import at least one key (even
+          for a standalone server). The path can be absolute or relative to the
+          dataDir.
+        '';
+        type = types.path;
+        default = "~/dump";
+      }
 
       # TODO: default =
       # "\${config.networking.hostName}.\${config.networking.domain}";?
@@ -163,12 +175,19 @@ in
         default = sksCfg;
         defaultText = "sks configuration file";
       };
+
+      # TODO: finalize
+      sksconfFile = mkOption {
+      };
     };
   };
 ###### implementation
   config = mkMerge
   [
     (mkIf cfg.enable {
+
+      # TODO
+      #warnings = ...
 
       environment.systemPackages = [ pkg ];
 
@@ -185,6 +204,33 @@ in
         gid = config.ids.gids.sks;
       }];
 
+      environment.etc = {
+        "sks/sksconf".source = ${sksCfg};
+        "sks/DB_CONFIG".source = ${dbCfg};
+      };
+
+      #system.activationScripts
+
+      # TODO - Merging?
+      services.logrotate = {
+        enable = true;
+        config = ''
+          # TODO - /var/log/sks/*.log
+          /var/log/sks/db.log {
+rotate 4
+weekly
+notifempty
+missingok
+delaycompress
+sharedscripts
+postrotate
+  /bin/kill -HUP `cat /var/run/sks-db.pid    2>/dev/null` 2>/dev/null || true
+  /bin/kill -HUP `cat /var/run/sks-recon.pid 2>/dev/null` 2>/dev/null || true
+endscript
+          }
+        '';
+      };
+
       systemd.services."sks-db" = {
         description = "SKS database server";
         after = [ "network.target" ];
@@ -192,15 +238,30 @@ in
         serviceConfig = {
           Type = "simple";
           ExecStart = "${pkg}/bin/sks db -basedir ${cfg.dataDir}";
+# Takes an absolute directory path. Sets the working directory for executed
+# processes. If not set, defaults to the root directory when systemd is running
+# as a system instance and the respective user's home directory if run as user.
           WorkingDirectory = cfg.dataDir;
           User = "sks";
         };
         preStart = ''
-          ln -fsn ${sksCfg} ${cfg.dataDir}/sksconf
-          ln -fsn ${dbCfg} ${cfg.dataDir}/DB_CONFIG
+          #ln -fsn ${sksCfg} ${cfg.dataDir}/sksconf
+          #ln -fsn ${dbCfg} ${cfg.dataDir}/DB_CONFIG
+
+          # Create symbolic links for all configuration files (/etc/sks)
+          ln -fsn /etc/sks/DB_CONFIG ${cfg.dataDir}/DB_CONFIG
+          ln -fsn /etc/sks/sksconf ${cfg.dataDir}/sksconf
+
+          # Use /var/log/sks for all log files
+          mkdir -p /var/log/sks
+          ln -fsn /var/log/sks/db.log ${cfg.dataDir}
 
           if ! test -e ${cfg.dataDir}/KDB; then
             ${pkg}/bin/sks build -basedir ${cfg.dataDir}
+            # TODO - Actually build the DB (import a dump / at least one key)
+            #${pkg}/bin/sks build ${dumpDir}/*.pgp -n 10 -cache 100
+            #${pkg}/bin/sks cleandb
+            #${pkg}/bin/sks pbuild -cache 20 -ptree_cache 70
           fi
         '';
       };
@@ -210,6 +271,7 @@ in
 
       systemd.services."sks-recon" = {
         description = "SKS reconciliation server";
+        bindsTo = [ "sks-db.service" ];
         after = [ "sks-db.service" ];
         wantedBy = [ "multi-user.target" ];
         serviceConfig = {
@@ -218,6 +280,9 @@ in
           WorkingDirectory = cfg.dataDir;
           User = "sks";
         };
+        preStart = ''
+          ln -fsn /var/log/sks/recon.log ${cfg.dataDir}
+        '';
       };
     })
   ];
