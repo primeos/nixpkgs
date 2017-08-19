@@ -11894,6 +11894,10 @@ with pkgs;
     utillinux = utillinuxMinimal;
   };
 
+  fuse3 = callPackage ../os-specific/linux/fuse/3.nix {
+    utillinux = utillinuxMinimal;
+  };
+
   fusionio-util = callPackage ../os-specific/linux/fusionio/util.nix { };
 
   fxload = callPackage ../os-specific/linux/fxload { };
