@@ -10890,6 +10890,7 @@ in {
     };
   };
 
+  mysql-connector = callPackage ../development/python-modules/mysql-connector { };
 
   mysql_connector_repackaged = buildPythonPackage rec {
     name = "mysql-connector-repackaged-0.3.1";
