@@ -220,6 +220,10 @@ while (my ($unit, $state) = each %{$activePrev}) {
                 # service unit has to be stopped before the socket can
                 # be restarted. The service will be started again on demand.
                 my $serviceUnit = $unitInfo->{'Unit'} // "$baseName.service";
+                print STDERR "Affected unit files: $prevUnitFile -> $newUnitFile\n";
+                print STDERR "Affected unit fingerprints: ", fingerprintUnit($prevUnitFile), " -> ", fingerprintUnit($newUnitFile), "\n";
+                print STDERR "Affected unit (socket):  $unit\n";
+                print STDERR "Affected unit (service): $serviceUnit\n";
                 $unitsToStop{$serviceUnit} = 1;
                 $unitsToStop{$unit} = 1;
                 $unitsToStart{$unit} = 1;
