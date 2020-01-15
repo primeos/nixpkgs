@@ -8,13 +8,13 @@
 
 stdenv.mkDerivation rec {
   pname = "sway-unwrapped";
-  version = "1.3-rc2";
+  version = "1.3-rc3";
 
   src = fetchFromGitHub {
     owner = "swaywm";
     repo = "sway";
     rev = version;
-    sha256 = "11rcfxy3w51d4yasfhy2xw424w2mq1hzhn306nnkbwwm56sfc6c8";
+    sha256 = "03fdiwrps72mch7wywpdvzil66kpa4f4h8cvvcllszj7qsy1ic3b";
   };
 
   patches = [
