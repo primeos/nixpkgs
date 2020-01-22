@@ -8,23 +8,19 @@
 
 stdenv.mkDerivation rec {
   pname = "sway-unwrapped";
-  version = "1.3-rc3";
+  version = "1.4";
 
   src = fetchFromGitHub {
     owner = "swaywm";
     repo = "sway";
     rev = version;
-    sha256 = "03fdiwrps72mch7wywpdvzil66kpa4f4h8cvvcllszj7qsy1ic3b";
+    sha256 = "11qf89y3q92g696a6f4d23qb44gqixg6qxq740vwv2jw59ms34ja";
   };
 
   patches = [
     ./sway-config-no-nix-store-references.patch
     ./load-configuration-from-etc.patch
   ];
-
-  postPatch = ''
-    sed -i "s/version: '1.3-rc1'/version: '${version}'/" meson.build
-  '';
 
   nativeBuildInputs = [
     pkgconfig meson ninja scdoc
