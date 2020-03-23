@@ -3092,6 +3092,8 @@ in
 
   wob = callPackage ../tools/misc/wob { };
 
+  wshowkeys = callPackage ../tools/wayland/wshowkeys { };
+
   xob = callPackage ../tools/X11/xob { };
 
   z-lua = callPackage ../tools/misc/z-lua { };
