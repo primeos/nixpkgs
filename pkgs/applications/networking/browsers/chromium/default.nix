@@ -3,7 +3,7 @@
 , glib, gtk3, gnome3, gsettings-desktop-schemas, gn, fetchgit
 , libva ? null
 , gcc, nspr, nss, patchelfUnstable, runCommand
-, lib
+, lib, minigbm
 
 # package customization
 , channel ? "stable"
@@ -17,6 +17,7 @@
 , cupsSupport ? true
 , pulseSupport ? config.pulseaudio or stdenv.isLinux
 , commandLineArgs ? ""
+, extraGnFlags ? {}
 }:
 
 let
@@ -33,7 +34,8 @@ let
     upstream-info = (callPackage ./update.nix {}).getChannel channel;
 
     mkChromiumDerivation = callPackage ./common.nix ({
-      inherit gnome gnomeSupport gnomeKeyringSupport proprietaryCodecs cupsSupport pulseSupport useVaapi useOzone;
+      inherit gnome gnomeSupport gnomeKeyringSupport proprietaryCodecs
+        cupsSupport pulseSupport useVaapi useOzone extraGnFlags;
       gnChromium = gn;
     } // lib.optionalAttrs (channel != "stable") {
       # TODO: Remove after we can update gn for the stable channel (backward incompatible changes):
@@ -146,7 +148,7 @@ in stdenv.mkDerivation {
   buildCommand = let
     browserBinary = "${chromiumWV}/libexec/chromium/chromium";
     getWrapperFlags = plugin: "$(< \"${plugin}/nix-support/wrapper-flags\")";
-    libPath = stdenv.lib.makeLibraryPath ([]
+    libPath = stdenv.lib.makeLibraryPath ([ minigbm ]
       ++ stdenv.lib.optional useVaapi libva
     );
 

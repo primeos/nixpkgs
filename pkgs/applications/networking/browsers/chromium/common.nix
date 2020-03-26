@@ -31,6 +31,7 @@
 , proprietaryCodecs ? true
 , cupsSupport ? true
 , pulseSupport ? false, libpulseaudio ? null
+, extraGnFlags ? {}
 
 , upstream-info
 }:
@@ -275,7 +276,8 @@ let
       use_system_minigbm = true;
       use_system_libdrm = true;
       system_wayland_scanner_path = "${wayland}/bin/wayland-scanner";
-    } // (extraAttrs.gnFlags or {}));
+    } // (extraAttrs.gnFlags or {})
+    // extraGnFlags);
 
     configurePhase = ''
       runHook preConfigure

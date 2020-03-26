@@ -18744,12 +18744,23 @@ in
   bookworm = callPackage ../applications/office/bookworm { };
 
   chromium = callPackage ../applications/networking/browsers/chromium (config.chromium or {});
+  chromiumBeta = lowPrio (chromium.override { channel = "beta"; });
+  chromiumDev = lowPrio (chromium.override { channel = "dev"; });
+  # Pre-built Chromium with various experimental features enabled:
+  chromium-experimental = lowPrio (chromium.override {
+    useOzone = true;
+    useVaapi = true;
+    extraGnFlags = {
+      ozone_platform_gbm = true; # Required to fix the build/linking
+      use_system_minigbm = false;
+      # Currently requires a separate minigbm build
+      #use_amdgpu_minigbm = true;
+      #use_intel_minigbm = true;
+      #use_radeon_minigbm = true;
+    };
+  });
 
   chronos = callPackage ../applications/networking/cluster/chronos { };
-
-  chromiumBeta = lowPrio (chromium.override { channel = "beta"; });
-
-  chromiumDev = lowPrio (chromium.override { channel = "dev"; });
 
   chuck = callPackage ../applications/audio/chuck {
     inherit (darwin.apple_sdk.frameworks) AppKit Carbon CoreAudio CoreMIDI CoreServices Kernel;
