@@ -13563,6 +13563,8 @@ in
 
   mimalloc = callPackage ../development/libraries/mimalloc { };
 
+  minigbm = callPackage ../development/libraries/minigbm { };
+
   minizip = callPackage ../development/libraries/minizip { };
 
   mkvtoolnix = libsForQt5.callPackage ../applications/video/mkvtoolnix { };
