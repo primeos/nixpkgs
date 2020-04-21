@@ -18748,6 +18748,7 @@ in
   chromiumDev = lowPrio (chromium.override { channel = "dev"; });
   # Pre-built Chromium with various experimental features enabled:
   chromium-experimental = lowPrio (chromium.override {
+    channel = "beta"; # EGL (--use-gl=egl) is unfortunately broken on M81
     useOzone = true;
     useVaapi = true;
     extraGnFlags = {

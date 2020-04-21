@@ -5,13 +5,13 @@
 
 stdenv.mkDerivation rec {
   pname = "minigbm-unstable";
-  version = "2019-08-25"; # https://source.chromium.org/chromium/chromium/src/+/$version:DEPS
+  version = "2020-03-26"; # https://source.chromium.org/chromium/chromium/src/+/$version:DEPS
   # TODO: Use the version from Chromium once it's included in the tarball.
 
   src = fetchgit {
     url = "https://chromium.googlesource.com/chromiumos/platform/minigbm";
-    rev = "3d856025f8f057d29361e753ef712993d218d6e9";
-    sha256 = "0nl6k9nk9bbkna0bjcj587b19y2m7736mjfzir91ncfqc5mvg7m7";
+    rev = "bc4f023bfcc51cf9dcfcfec5bf4177b2e607dd68";
+    sha256 = "08ag207199xj5cw686386rmvr7sx2mzihdckm2pnvw743w03gipr";
   };
 
   patches = [ ./install-as-libminigbm.patch ];
