@@ -5,7 +5,7 @@ let
     fontsConf = makeFontsConf {
       fontDirectories = [];
     };
-    inherit (gnome2) GConf gnome_vfs;
+    inherit (gnome2) GConf gnome_vfs; # TEST
   };
   stableVersion = {
     version = "3.6.3.0"; # "Android Studio 3.6.3"
