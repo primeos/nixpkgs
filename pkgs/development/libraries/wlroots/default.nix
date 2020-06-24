@@ -5,14 +5,14 @@
 }:
 
 stdenv.mkDerivation rec {
-  pname = "wlroots";
-  version = "0.10.1";
+  pname = "wlroots-unstable";
+  version = "2020-06-08";
 
   src = fetchFromGitHub {
     owner = "swaywm";
     repo = "wlroots";
-    rev = version;
-    sha256 = "0j2lh9vc92zhn44rjbia5aw3y1rpgfng1x1h17lcvj5m4i6vj0pc";
+    rev = "4a4da256ddce84c6ddf4574645f8f88c66940c8c";
+    sha256 = "1zr9i0msf9j7gci3lidrm9nz09jp4b6y017cab17gjzqm19kxw26";
   };
 
   # $out for the library and $examples for the example programs (in examples):
@@ -25,6 +25,8 @@ stdenv.mkDerivation rec {
     xcbutilwm libX11 libcap xcbutilimage xcbutilerrors mesa
     libpng ffmpeg
   ];
+
+  mesonFlags = [ "-Dlogind-provider=systemd" ];
 
   postInstall = ''
     # Copy the library to $examples
