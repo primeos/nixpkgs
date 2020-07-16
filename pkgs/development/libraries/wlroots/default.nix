@@ -5,14 +5,14 @@
 }:
 
 stdenv.mkDerivation rec {
-  pname = "wlroots-unstable";
-  version = "2020-06-28";
+  pname = "wlroots";
+  version = "0.11.0";
 
   src = fetchFromGitHub {
     owner = "swaywm";
     repo = "wlroots";
-    rev = "a54ed8588177a679a131c621c0d300c6a9d910c5";
-    sha256 = "1ck5wrw8xl2ss1qixlmspsix7a96abajvl9v3xcygxmrnkj6412v";
+    rev = version;
+    sha256 = "08d5d52m8wy3imfc6mdxpx8swhh2k4s1gmfaykg02j59z84awc6p";
   };
 
   # $out for the library and $examples for the example programs (in examples):
@@ -21,7 +21,7 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ meson ninja pkg-config wayland ];
 
   buildInputs = [
-    libGL wayland-protocols libinput libxkbcommon pixman
+    libGL wayland wayland-protocols libinput libxkbcommon pixman
     xcbutilwm libX11 libcap xcbutilimage xcbutilerrors mesa
     libpng ffmpeg
   ];
