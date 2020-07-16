@@ -21,6 +21,10 @@ stdenv.mkDerivation rec {
     ./load-configuration-from-etc.patch
   ];
 
+  postPatch = ''
+    substituteInPlace meson.build --replace "v1.5" "1.5"
+  '';
+
   nativeBuildInputs = [
     meson ninja pkg-config wayland scdoc
   ];
