@@ -1,20 +1,19 @@
 { stdenv, fetchFromGitHub, makeWrapper
-, meson, ninja
-, pkgconfig, scdoc
-, wayland, libxkbcommon, pcre, json_c, dbus, libevdev
+, meson, ninja, pkg-config, wayland, scdoc
+, libxkbcommon, pcre, json_c, dbus, libevdev
 , pango, cairo, libinput, libcap, pam, gdk-pixbuf, librsvg
 , wlroots, wayland-protocols
 }:
 
 stdenv.mkDerivation rec {
   pname = "sway-unwrapped";
-  version = "1.5-rc2";
+  version = "1.5";
 
   src = fetchFromGitHub {
     owner = "swaywm";
     repo = "sway";
-    rev = "v${version}";
-    sha256 = "1a2fi11zw2k9jn8ri4byjm87d7w1l52dbjn1l4476f3fnj7ga1z5";
+    rev = version;
+    sha256 = "0r3b7h778l9i20z3him9i2qsaynpn9y78hzfgv3cqi8fyry2c4f9";
   };
 
   patches = [
@@ -23,7 +22,7 @@ stdenv.mkDerivation rec {
   ];
 
   nativeBuildInputs = [
-    pkgconfig meson ninja scdoc
+    meson ninja pkg-config wayland scdoc
   ];
 
   buildInputs = [
@@ -48,6 +47,7 @@ stdenv.mkDerivation rec {
       using only the keyboard.
     '';
     homepage    = "https://swaywm.org";
+    changelog   = "https://github.com/swaywm/sway/releases/tag/${version}";
     license     = licenses.mit;
     platforms   = platforms.linux;
     maintainers = with maintainers; [ primeos synthetica ma27 ];
