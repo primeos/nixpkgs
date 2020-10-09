@@ -1,18 +1,16 @@
-{ stdenv, fetchurl
+{ stdenv, fetchgit
 , meson, pkg-config, wayland, ninja
 , cairo, libinput, pango, wayland-protocols, libxkbcommon
 }:
 
-let
-  version = "2019-09-26";
-  commit = "a9bf6bca0361b57c67e4627bf53363a7048457fd";
-in stdenv.mkDerivation rec {
+stdenv.mkDerivation rec {
   pname = "wshowkeys-unstable";
-  inherit version;
+  version = "2020-03-29";
 
-  src = fetchurl {
-    url = "https://git.sr.ht/~sircmpwn/wshowkeys/archive/${commit}.tar.gz";
-    sha256 = "0b21z3csd3v4lw5b8a6lpx5gfsdk0gjmm8906sa72hyfd1p39b7g";
+  src = fetchgit {
+    url = "https://git.sr.ht/~sircmpwn/wshowkeys";
+    rev = "6388a49e0f431d6d5fcbd152b8ae4fa8e87884ee";
+    sha256 = "etXXNxspnJOoVu2tL/EOxW04vuxqQ3719YuzomRzaoI=";
   };
 
   nativeBuildInputs = [ meson pkg-config wayland ninja ];
@@ -30,6 +28,6 @@ in stdenv.mkDerivation rec {
     homepage = "https://git.sr.ht/~sircmpwn/wshowkeys";
     license = licenses.mit;
     platforms = platforms.unix;
-    maintainers = with maintainers; [ primeos ];
+    maintainers = with maintainers; [ primeos berbiche ];
   };
 }
