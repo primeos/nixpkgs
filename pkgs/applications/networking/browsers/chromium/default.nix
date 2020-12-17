@@ -15,6 +15,7 @@
 , enablePepperFlash ? false
 , enableWideVine ? false
 , enableVaapi ? false # Disabled by default due to unofficial support
+, ungoogled ? true
 , cupsSupport ? true
 , pulseSupport ? config.pulseaudio or stdenv.isLinux
 , commandLineArgs ? ""
@@ -34,6 +35,7 @@ let
     mkChromiumDerivation = callPackage ./common.nix ({
       inherit channel gnome gnomeSupport gnomeKeyringSupport proprietaryCodecs
               cupsSupport pulseSupport;
+      inherit ungoogled;
       gnChromium = gn.overrideAttrs (oldAttrs: {
         inherit (upstream-info.deps.gn) version;
         src = fetchgit {
@@ -47,6 +49,8 @@ let
     plugins = callPackage ./plugins.nix {
       inherit enablePepperFlash;
     };
+
+    ungoogled-chromium = callPackage ./ungoogled.nix {};
   };
 
   pkgSuffix = if channel == "dev" then "unstable" else channel;
@@ -133,7 +137,7 @@ let
     else browser;
 
 in stdenv.mkDerivation {
-  name = "chromium${suffix}-${version}";
+  name = "ungoogled-chromium${suffix}-${version}";
   inherit version;
 
   buildInputs = [

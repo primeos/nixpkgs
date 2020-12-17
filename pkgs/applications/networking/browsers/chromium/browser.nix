@@ -69,15 +69,15 @@ mkChromiumDerivation (base: rec {
   requiredSystemFeatures = [ "big-parallel" ];
 
   meta = {
-    description = "An open source web browser from Google";
+    description = "An open source web browser from Google, with dependencies on Google web services removed";
     longDescription = ''
       Chromium is an open source web browser from Google that aims to build a
       safer, faster, and more stable way for all Internet users to experience
       the web. It has a minimalist user interface and provides the vast majority
       of source code for Google Chrome (which has some additional features).
     '';
-    homepage = "https://www.chromium.org/";
-    maintainers = with maintainers; [ primeos thefloweringash bendlas ]; # See README.md
+    homepage = "https://github.com/Eloston/ungoogled-chromium";
+    maintainers = with maintainers; [ squalus ];
     license = if enableWideVine then licenses.unfree else licenses.bsd3;
     platforms = platforms.linux;
     hydraPlatforms = if channel == "stable" then ["aarch64-linux" "x86_64-linux"] else [];
