@@ -153,7 +153,12 @@ let
       # ++ optional (versionRange "68" "72") ( githubPatch "<patch>" "0000000000000000000000000000000000000000000000000000000000000000" )
     ];
 
+    patch_ozone_wayland_vaapi = fetchurl {
+      url = "https://chromium-review.googlesource.com/changes/chromium%2Fsrc~2592787/revisions/1/patch?download";
+      sha256 = "0dxjnv73z06vsmn48va6h5gisq57dlg3f9p09b04l8b45wfp0ldp";
+    };
     postPatch = ''
+      base64 -d < ${patch_ozone_wayland_vaapi} | patch -p1
       # remove unused third-party
       for lib in ${toString gnSystemLibraries}; do
         if [ -d "third_party/$lib" ]; then
