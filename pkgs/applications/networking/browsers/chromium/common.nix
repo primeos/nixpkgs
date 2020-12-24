@@ -52,6 +52,11 @@ let
     url = "https://github.com/chromium/chromium/commit/${commit}.patch";
     inherit sha256;
   };
+  patch_ozone_wayland_vaapi = fetchurl {
+    # https://chromium-review.googlesource.com/c/chromium/src/+/2592787 - ozone/wayland: va-api
+    url = "https://chromium-review.googlesource.com/changes/chromium%2Fsrc~2592787/revisions/1/patch?download";
+    sha256 = "0dxjnv73z06vsmn48va6h5gisq57dlg3f9p09b04l8b45wfp0ldp";
+  };
 
   mkGnFlags =
     let
@@ -154,6 +159,7 @@ let
     ];
 
     postPatch = ''
+      base64 -d < ${patch_ozone_wayland_vaapi} | patch -p1
       # remove unused third-party
       for lib in ${toString gnSystemLibraries}; do
         if [ -d "third_party/$lib" ]; then
