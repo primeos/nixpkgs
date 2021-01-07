@@ -28,11 +28,11 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "wayland";
-  version = "1.18.91";
+  version = "1.18.92";
 
   src = fetchurl {
     url = "https://wayland.freedesktop.org/releases/${pname}-${version}.tar.xz";
-    sha256 = "1ldkh6sfzsqllqf72cx95mk35zqzh2xrp5jsx8j3k4jg3m8v6b0h";
+    sha256 = "1kb5zc36cm9ny246xfkyy192n75bhywja3lchhg9fc42ypc9cmjv";
   };
 
   patches = [
