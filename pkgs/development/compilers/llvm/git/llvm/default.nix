@@ -1,5 +1,5 @@
 { lib, stdenv, llvm_meta
-, fetch
+, src
 , cmake
 , python3
 , libffi
@@ -18,7 +18,6 @@
   || stdenv.isAarch64 # broken for Ampere eMAG 8180 (c2.large.arm on Packet) #56245
   || stdenv.isAarch32 # broken for the armv7l builder
 )
-, enablePolly ? false
 }:
 
 let
@@ -32,17 +31,8 @@ in stdenv.mkDerivation (rec {
   pname = "llvm";
   inherit version;
 
-  src = fetch pname "0l4b79gwfvxild974aigcq1yigypjsk2j5p59syhl6ksd744gp29";
-  polly_src = fetch "polly" "1ixl9yj526n8iqh9ckyiah2vzravs9d1akybqq7rvy32n9vgr6hd";
-
-  unpackPhase = ''
-    unpackFile $src
-    mv llvm-${release_version}* llvm
-    sourceRoot=$PWD/llvm
-  '' + optionalString enablePolly ''
-    unpackFile $polly_src
-    mv polly-* $sourceRoot/tools/polly
-  '';
+  inherit src;
+  sourceRoot = "source/${pname}";
 
   outputs = [ "out" "python" ]
     ++ optional enableSharedLibraries "lib";

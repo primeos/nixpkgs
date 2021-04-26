@@ -1,5 +1,5 @@
 { lowPrio, newScope, pkgs, lib, stdenv, cmake, gccForLibs
-, libxml2, python3, isl, fetchurl, overrideCC, wrapCCWith, wrapBintoolsWith
+, libxml2, python3, isl, fetchFromGitHub, overrideCC, wrapCCWith, wrapBintoolsWith
 , buildPackages
 , buildLlvmTools # tools, but from the previous stage, for cross
 , targetLlvmLibraries # libraries, but from the next stage, for cross
@@ -13,12 +13,12 @@ let
   version = "${release_version}${dash-candidate}"; # differentiating these (variables) is important for RCs
   targetConfig = stdenv.targetPlatform.config;
 
-  fetch = name: sha256: fetchurl {
-    url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-${version}/${name}-${release_version}${candidate}.src.tar.xz";
-    inherit sha256;
+  src = fetchFromGitHub {
+    owner = "llvm";
+    repo = "llvm-project";
+    rev = "llvmorg-${version}";
+    sha256 = "07jz8pywc2qqa1srdnqg5p2y4lx3ki1inpigarzgxc3j20r4gb58";
   };
-
-  clang-tools-extra_src = fetch "clang-tools-extra" "0p3dzr0qa7mar83y66xa5m5apynf6ia0lsdsq6axwnm64ysy0hdd";
 
   llvm_meta = {
     license     = lib.licenses.ncsa;
@@ -27,7 +27,7 @@ let
   };
 
   tools = lib.makeExtensible (tools: let
-    callPackage = newScope (tools // { inherit stdenv cmake libxml2 python3 isl release_version version fetch; });
+    callPackage = newScope (tools // { inherit stdenv cmake libxml2 python3 isl release_version version src; });
     mkExtraBuildCommands = cc: ''
       rsrc="$out/resource-root"
       mkdir "$rsrc"
@@ -45,7 +45,7 @@ let
 
     clang-unwrapped = callPackage ./clang {
       inherit (tools) lld;
-      inherit clang-tools-extra_src llvm_meta;
+      inherit llvm_meta;
     };
 
     # disabled until recommonmark supports sphinx 3
@@ -91,7 +91,6 @@ let
 
     lld = callPackage ./lld {
       inherit llvm_meta;
-      libunwind = libraries.libunwind;
     };
 
     lldb = callPackage ./lldb {
@@ -180,7 +179,7 @@ let
   });
 
   libraries = lib.makeExtensible (libraries: let
-    callPackage = newScope (libraries // buildLlvmTools // { inherit stdenv cmake libxml2 python3 isl release_version version fetch; });
+    callPackage = newScope (libraries // buildLlvmTools // { inherit stdenv cmake libxml2 python3 isl release_version version src; });
   in {
 
     compiler-rt = callPackage ./compiler-rt ({ inherit llvm_meta; } //

@@ -1,4 +1,4 @@
-{ lib, stdenv, llvm_meta, version, fetch, cmake, python3, llvm, libcxxabi }:
+{ lib, stdenv, llvm_meta, version, src, cmake, python3, llvm, libcxxabi }:
 
 let
 
@@ -11,7 +11,9 @@ in
 stdenv.mkDerivation rec {
   pname = "compiler-rt";
   inherit version;
-  src = fetch pname "0d444qihq9jhqnfv003cr704v363va72zl6qaw2algj1c85cva45";
+
+  inherit src;
+  sourceRoot = "source/${pname}";
 
   nativeBuildInputs = [ cmake python3 llvm ];
   buildInputs = lib.optional stdenv.hostPlatform.isDarwin libcxxabi;
