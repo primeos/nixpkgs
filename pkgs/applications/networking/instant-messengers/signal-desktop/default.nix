@@ -25,7 +25,7 @@ let
       else "");
 in stdenv.mkDerivation rec {
   pname = "signal-desktop";
-  version = "5.0.0"; # Please backport all updates to the stable channel.
+  version = "5.1.0-beta.5"; # Please backport all updates to the stable channel.
   # All releases have a limited lifetime and "expire" 90 days after the release.
   # When releases "expire" the application becomes unusable until an update is
   # applied. The expiration date for the current release can be extracted with:
@@ -34,8 +34,8 @@ in stdenv.mkDerivation rec {
   # few additional steps and might not be the best idea.)
 
   src = fetchurl {
-    url = "https://updates.signal.org/desktop/apt/pool/main/s/signal-desktop/signal-desktop_${version}_amd64.deb";
-    sha256 = "17hxg61m9kk1kph6ifqy6507kzx5hi6yafr2mj8n0a6c39vc8f9g";
+    url = "https://updates.signal.org/desktop/apt/pool/main/s/signal-desktop-beta/signal-desktop-beta_${version}_amd64.deb";
+    sha256 = "1cwpx5j7qcdzqp1a42jdwk3pm3g6mzwl8vfqhganrijwrhv4zp8a";
   };
 
   nativeBuildInputs = [
@@ -79,6 +79,7 @@ in stdenv.mkDerivation rec {
     pango
     systemd
     xorg.libxcb
+    xorg.libxshmfence
   ];
 
   runtimeDependencies = [
@@ -102,7 +103,7 @@ in stdenv.mkDerivation rec {
     mkdir -p $out/lib
 
     mv usr/share $out/share
-    mv opt/Signal $out/lib/Signal
+    mv "opt/Signal Beta" "$out/lib/Signal"
 
     # Note: The following path contains bundled libraries:
     # $out/lib/Signal/resources/app.asar.unpacked/node_modules/sharp/vendor/lib/
@@ -111,7 +112,7 @@ in stdenv.mkDerivation rec {
 
     # Symlink to bin
     mkdir -p $out/bin
-    ln -s $out/lib/Signal/signal-desktop $out/bin/signal-desktop
+    ln -s $out/lib/Signal/signal-desktop-beta $out/bin/signal-desktop-beta
 
     runHook postInstall
   '';
@@ -123,8 +124,8 @@ in stdenv.mkDerivation rec {
     )
 
     # Fix the desktop link
-    substituteInPlace $out/share/applications/signal-desktop.desktop \
-      --replace /opt/Signal/signal-desktop $out/bin/signal-desktop
+    substituteInPlace $out/share/applications/signal-desktop-beta.desktop \
+      --replace "/opt/Signal Beta/signal-desktop-beta" $out/bin/signal-desktop-beta
 
     autoPatchelf --no-recurse -- $out/lib/Signal/
     patchelf --add-needed ${libpulseaudio}/lib/libpulse.so $out/lib/Signal/resources/app.asar.unpacked/node_modules/ringrtc/build/linux/libringrtc.node
