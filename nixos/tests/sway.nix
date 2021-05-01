@@ -8,7 +8,7 @@ in
 {
   name = "sway";
   meta = {
-    maintainers = with lib.maintainers; [ primeos ];
+    maintainers = with lib.maintainers; [ primeos synthetica ];
   };
 
   machine = { config, ... }: {
