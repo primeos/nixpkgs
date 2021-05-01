@@ -31,6 +31,7 @@ in
   in ''
     start_all()
     machine.wait_for_unit("multi-user.target")
+    machine.wait_until_tty_matches(1, "alice\@machine")
     machine.send_chars(
         "sway --config ${altConfig} \n"
     )
