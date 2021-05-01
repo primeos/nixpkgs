@@ -1,5 +1,10 @@
 import ./make-test-python.nix ({ pkgs, lib, ...} :
 
+let
+    altConfig = pkgs.runCommand "sway.cfg" {} ''
+      sed s/Mod4/Mod1/ ${pkgs.sway}/etc/sway/config > $out
+    '';
+in
 {
   name = "sway";
   meta = {
@@ -14,6 +19,8 @@ import ./make-test-python.nix ({ pkgs, lib, ...} :
     virtualisation.memorySize = 1024;
     # Need to switch to a different VGA card / GPU driver than the default one (std) so that Sway can launch:
     virtualisation.qemu.options = [ "-vga virtio" ];
+
+    services.getty.autologinUser = "alice";
   };
 
   enableOCR = true;
@@ -22,21 +29,11 @@ import ./make-test-python.nix ({ pkgs, lib, ...} :
     user = nodes.machine.config.users.users.alice;
     XDG_RUNTIME_DIR = "/run/user/${toString user.uid}";
   in ''
-    def login_as_alice():
-        machine.wait_until_tty_matches(1, "login: ")
-        machine.send_chars("alice\n")
-        machine.wait_until_tty_matches(1, "Password: ")
-        machine.send_chars("foobar\n")
-        machine.wait_until_tty_matches(1, "alice\@machine")
-
-
     start_all()
     machine.wait_for_unit("multi-user.target")
-    machine.succeed(
-        "su - alice -c 'mkdir -p ~/.config/sway && sed s/Mod4/Mod1/ /etc/sway/config > ~/.config/sway/config'"
+    machine.send_chars(
+        "sway --config ${altConfig} \n"
     )
-    login_as_alice()
-    machine.send_chars("sway\n")
     machine.wait_for_file("${XDG_RUNTIME_DIR}/wayland-1")
     machine.screenshot("empty_workspace")
     machine.sleep(10)
