@@ -36,8 +36,8 @@ in
         "sway --config ${altConfig} \n"
     )
     machine.wait_for_file("${XDG_RUNTIME_DIR}/wayland-1")
-    machine.screenshot("empty_workspace")
     machine.sleep(10)
+    machine.screenshot("empty_workspace")
     machine.send_key("alt-ret")
     machine.wait_for_text("alice@machine")
     machine.screenshot("alacritty")
