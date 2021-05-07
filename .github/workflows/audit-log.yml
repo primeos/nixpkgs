@@ -5,5 +5,5 @@ jobs:
     runs-on: ubuntu-latest
     #TODO: if: github.repository_owner == 'NixOS'
     steps:
-    - name: Cat event.json
-      run: "echo $GITHUB_EVENT_NAME && cat $GITHUB_EVENT_PATH"
+    - name: Analyze event.json
+      run: jq 'with_entries(select([.key] | inside(["ref", "created", "deleted", "forced"])))' $GITHUB_EVENT_PATH | tee result.json
