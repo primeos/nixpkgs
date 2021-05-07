@@ -1,0 +1,9 @@
+name: "Audit logging"
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    #TODO: if: github.repository_owner == 'NixOS'
+    steps:
+    - name: Cat event.json
+      run: "echo $GITHUB_EVENT_NAME && cat $GITHUB_EVENT_PATH"
