@@ -18,8 +18,8 @@
 }:
 
 let
-  release_version = "12.0.0";
-  candidate = ""; # empty or "rcN"
+  release_version = "12.0.1";
+  candidate = "rc1"; # empty or "rcN"
   dash-candidate = lib.optionalString (candidate != "") "-${candidate}";
   version = "${release_version}${dash-candidate}"; # differentiating these (variables) is important for RCs
   targetConfig = stdenv.targetPlatform.config;
@@ -29,7 +29,7 @@ let
     inherit sha256;
   };
 
-  clang-tools-extra_src = fetch "clang-tools-extra" "0p3dzr0qa7mar83y66xa5m5apynf6ia0lsdsq6axwnm64ysy0hdd";
+  clang-tools-extra_src = fetch "clang-tools-extra" "0szb9jbc80d3hmyvxa4l5n31cgd7xpnn95m6npd5sa432s57rb71";
 
   llvm_meta = {
     license     = lib.licenses.ncsa;
