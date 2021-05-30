@@ -1039,6 +1039,8 @@ in
 
   analog = callPackage ../tools/admin/analog {};
 
+  android-tools = callPackage ../tools/misc/android-tools { };
+
   angle-grinder = callPackage ../tools/text/angle-grinder {};
 
   ansifilter = callPackage ../tools/text/ansifilter {};
