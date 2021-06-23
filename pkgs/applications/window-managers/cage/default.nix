@@ -23,7 +23,7 @@ stdenv.mkDerivation rec {
       # Unbreak build with wlroots 0.14.0
       # TODO: Don't fetch from a PR!
       url = "https://github.com/Hjdskes/cage/pull/191.patch";
-      sha256 = "1bnhi17fbz7h39xia1blfvpy44a89hsv75l81f38s151mw7ran6i";
+      sha256 = "0wlgaqii63l710c5fx7ij57x6r874pdxca1ij5v7gz7ividixw0i";
     })
   ];
 
