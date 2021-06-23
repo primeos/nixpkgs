@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchFromGitHub
+{ lib, stdenv, fetchFromGitHub, fetchpatch
 , meson, ninja, pkg-config, wayland, scdoc, makeWrapper
 , wlroots, wayland-protocols, pixman, libxkbcommon
 , systemd, libGL, libX11, mesa
@@ -16,6 +16,16 @@ stdenv.mkDerivation rec {
     rev = "v${version}";
     sha256 = "0ixl45g0m8b75gvbjm3gf5qg0yplspgs0xpm2619wn5sygc47sb1";
   };
+
+  patches = [
+    # To fix the build with wlroots 0.14.0:
+    (fetchpatch {
+      # Unbreak build with wlroots 0.14.0
+      # TODO: Don't fetch from a PR!
+      url = "https://github.com/Hjdskes/cage/pull/191.patch";
+      sha256 = "1bnhi17fbz7h39xia1blfvpy44a89hsv75l81f38s151mw7ran6i";
+    })
+  ];
 
   nativeBuildInputs = [ meson ninja pkg-config wayland scdoc makeWrapper ];
 
