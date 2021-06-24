@@ -19,12 +19,7 @@ stdenv.mkDerivation rec {
 
   patches = [
     # To fix the build with wlroots 0.14.0:
-    (fetchpatch {
-      # Unbreak build with wlroots 0.14.0
-      # TODO: Don't fetch from a PR!
-      url = "https://github.com/Hjdskes/cage/pull/191.patch";
-      sha256 = "0wlgaqii63l710c5fx7ij57x6r874pdxca1ij5v7gz7ividixw0i";
-    })
+    ./wlroots-0_14.patch
   ];
 
   nativeBuildInputs = [ meson ninja pkg-config wayland scdoc makeWrapper ];
