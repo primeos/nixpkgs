@@ -38,8 +38,6 @@ stdenv.mkDerivation rec {
       url = "https://github.com/johanmalm/labwc/commit/892e93dd84c514b4e6f34a0fab01c727edd2d8de.patch";
       sha256 = "1p1pg1kd98727wlcspa2sffl7ijhvsfad6bj2rxsw322q0bz3yrh";
     })
-    # TODO: Why does this already build without this commit?:
-    # https://github.com/johanmalm/labwc/commit/874cc9e63706dd54d9f9fcb071f2d2e0c19d3d7e
   ];
 
   nativeBuildInputs = [ pkg-config meson ninja scdoc ];
