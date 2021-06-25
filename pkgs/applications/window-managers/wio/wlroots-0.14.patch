@@ -1,0 +1,75 @@
+commit 9d5093c019f6966b8ee0dba1da3361a761d04bcc
+Author: Michael Weiss <dev.primeos@gmail.com>
+Date:   Fri Jun 25 19:00:52 2021 +0200
+
+    Fix the build with wlroots 0.14
+    
+    Based on https://github.com/swaywm/wlroots/releases/tag/0.14.0.
+    
+    Relevant wlroots changes:
+    - Drop gtk-primary-selection support (#2460): this protocol has been
+      superseded by the standard primary-selection protocol
+    - render: remove wlr_texture_get_size (#2922): compositors can just
+      access the wlr_texture.width and height fields directly.
+
+diff --git a/main.c b/main.c
+index 870fdb0..638b8bc 100644
+--- a/main.c
++++ b/main.c
+@@ -15,7 +15,6 @@
+ #include <wlr/types/wlr_data_device.h>
+ #include <wlr/types/wlr_export_dmabuf_v1.h>
+ #include <wlr/types/wlr_gamma_control_v1.h>
+-#include <wlr/types/wlr_gtk_primary_selection.h>
+ #include <wlr/types/wlr_layer_shell_v1.h>
+ #include <wlr/types/wlr_primary_selection_v1.h>
+ #include <wlr/types/wlr_screencopy_v1.h>
+@@ -166,7 +165,7 @@ int main(int argc, char **argv) {
+ 	wlr_primary_selection_v1_device_manager_create(server.wl_display);
+ 
+ 	wlr_gamma_control_manager_v1_create(server.wl_display);
+-	wlr_gtk_primary_selection_device_manager_create(server.wl_display);
++	wlr_primary_selection_v1_device_manager_create(server.wl_display);
+ 
+ 	wl_list_init(&server.outputs);
+ 	server.new_output.notify = server_new_output;
+diff --git a/output.c b/output.c
+index 90c4c71..4692a1f 100644
+--- a/output.c
++++ b/output.c
+@@ -69,11 +69,10 @@ static void render_menu(struct wio_output *output) {
+ 	int border = 3 * scale, margin = 4 * scale;
+ 	int text_height = 0, text_width = 0;
+ 	for (size_t i = 0; i < ntextures; ++i) {
+-		int width, height;
+ 		// Assumes inactive/active textures are the same size
+ 		// (they probably are)
+-		wlr_texture_get_size(
+-				server->menu.inactive_textures[i], &width, &height);
++		int width = server->menu.inactive_textures[i]->width;
++		int height = server->menu.inactive_textures[i]->height;
+ 		width /= scale, height /= scale;
+ 		text_height += height + margin;
+ 		if (width >= text_width) {
+@@ -136,9 +135,9 @@ static void render_menu(struct wio_output *output) {
+ 	ox += margin;
+ 	oy += margin;
+ 	for (size_t i = 0; i < ntextures; ++i) {
+-		int width, height;
+ 		struct wlr_texture *texture = server->menu.inactive_textures[i];
+-		wlr_texture_get_size(texture, &width, &height);
++		int width = texture->width;
++		int height = texture->height;
+ 		width /= scale, height /= scale;
+ 		struct wlr_box box = { 0 };
+ 		box.x = ox - scale /* fudge */;
+@@ -152,7 +151,8 @@ static void render_menu(struct wio_output *output) {
+ 			wlr_render_rect(renderer, &box, menu_selected,
+ 					output->wlr_output->transform_matrix);
+ 		} else {
+-			wlr_texture_get_size(texture, &width, &height);
++			width = texture->width;
++			height = texture->height;
+ 			width /= scale, height /= scale;
+ 		}
+ 		box.x = (ox + (text_width / 2 - width / 2)) * scale;

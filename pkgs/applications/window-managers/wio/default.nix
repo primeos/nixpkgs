@@ -28,6 +28,10 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-mCggAscQ+Ej3SNwhA6QxecV1nH6Rw8RDf8yAsbadqjE=";
   };
 
+  patches = [
+    ./wlroots-0.14.patch
+  ];
+
   nativeBuildInputs = [
     meson
     ninja
