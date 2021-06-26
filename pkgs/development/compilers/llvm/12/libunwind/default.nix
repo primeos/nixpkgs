@@ -6,7 +6,7 @@ stdenv.mkDerivation rec {
   pname = "libunwind";
   inherit version;
 
-  src = fetch pname "16wasq14pxfwq5kyygs5v3n7ayqynw6ibn45f8z0vkxh22pi1a48";
+  src = fetch pname "1wh4nlrzyzds6wb9v4h4axkqhrgnv7j2gzdc0pc9f4faa4lxgz3s";
 
   postUnpack = ''
     unpackFile ${libcxx.src}

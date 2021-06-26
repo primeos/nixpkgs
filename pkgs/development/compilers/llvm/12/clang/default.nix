@@ -9,7 +9,7 @@ let
     pname = "clang";
     inherit version;
 
-    src = fetch "clang" "1c5ngk1dh5mbzdla01bnqpvnb05jvyjrdcqlc8fr2acaxkb5cvcx";
+    src = fetch "clang" "1kvncgcv3jg3hfgl1fwd7x8mv05h0ffkb0jnnfbfanb20xn1s21a";
     inherit clang-tools-extra_src;
 
     unpackPhase = ''
