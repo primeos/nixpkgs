@@ -12,7 +12,7 @@ stdenv.mkDerivation rec {
   pname = "lld";
   inherit version;
 
-  src = fetch pname "0m36bnnhhzym48fm0dz891ia60rqfkls8x06h5rfgv936hzn15xn";
+  src = fetch pname "1a4r40dyjxs23wijwdmcjk5rl3lg2yag7fpwjxnq1clkz3i12p46";
 
   patches = [
     ./gnu-install-dirs.patch
