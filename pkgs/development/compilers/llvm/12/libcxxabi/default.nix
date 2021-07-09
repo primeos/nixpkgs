@@ -6,7 +6,7 @@ stdenv.mkDerivation {
   pname = "libcxxabi";
   inherit version;
 
-  src = fetch "libcxxabi" "1lggw0sl3kvlcv6dbwq4qsbjzycvx74czsf6xgrsmclfk3lb3kwq";
+  src = fetch "libcxxabi" "1l4idd8npbkm168d26kqn529yv3npsd8f2dm8a7iwyknj7iyivw8";
 
   outputs = [ "out" "dev" ];
 
